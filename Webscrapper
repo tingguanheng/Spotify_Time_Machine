@@ -1,0 +1,41 @@
+from bs4 import BeautifulSoup
+import requests
+
+class BILLBOARD_100:
+    def __init__(self,added_date):
+        self.list_date = added_date
+        self.list_of_songs = self.pull_top_100_songs()["songs"]
+        self.list_of_artists = self.pull_top_100_songs()["artists"]
+
+    def pull_top_100_songs(self):
+        top100_page = f"https://www.billboard.com/charts/hot-100/{self.list_date}/"
+
+        response = requests.get(url = top100_page)
+        response.raise_for_status()
+        page = response.text
+
+        soup = BeautifulSoup(page, "html.parser")
+
+
+        story_tag = soup.find_all(name="li",class_="lrv-u-width-100p")
+
+        songs = []
+        artist = []
+
+        for tag in story_tag:
+            sub_tag = tag.find(name="h3", id="title-of-a-story")
+            if sub_tag is None:
+                continue
+            tag_split = [tag.getText().split() for tag in sub_tag]
+            song_title = " ".join(tag_split[0])
+            songs.append(song_title)
+
+            artist_tag = tag.find(name="span")
+            artist_split=artist_tag.getText().split()
+            artist_name = " ".join(artist_split)
+            artist.append(artist_name)
+
+        return {
+            "songs":songs,
+            "artists":artist
+        }
