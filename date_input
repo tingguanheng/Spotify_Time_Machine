@@ -1,0 +1,22 @@
+import datetime as dt
+
+class DATE_INPUT:
+    def __init__(self):
+        self.converted_date = ""
+        self.string_date = ""
+
+    def enter_date(self):
+        past_date = input("Which year do you want to travel to? Enter your input in DDMMYYYY format.")
+        try:
+            self.past_date = dt.datetime(int(past_date[4:]),int(past_date[2:4]),int(past_date[:2]))
+            self.converted_date = self.past_date.strftime("%Y-%m-%d")
+            self.string_date = self.past_date.strftime("%d %B %Y")
+        except ValueError or TypeError:
+            print("Please input in DDMMYYYY format.")
+            self.enter_date()
+        if self.past_date.year < 1960:
+                print("Earliest data is from 1960!")
+                self.enter_date()
+        elif self.past_date > dt.datetime.now():
+                print("Must be a date from the past!")
+                self.enter_date()
