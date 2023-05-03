@@ -7,7 +7,7 @@ input_date = DATE_INPUT()
 input_date.enter_date()
 billboard100 = BILLBOARD_100(added_date=input_date.converted_date)
 
-
+# Connect to Spotify
 scope = ["playlist-read-private","playlist-read-collaborative","playlist-modify-private","playlist-modify-public"]
 
 auth = spotipy.oauth2.SpotifyOAuth(client_id=[CLIENT_ID], 
@@ -27,7 +27,7 @@ list_of_playlists = {}
 for line in current_playlists["items"]:
     list_of_playlists[line["name"]] = line["id"]
 
-
+# Create new playlist if doesn't exist
 if f"{input_date.converted_date} Top 100" not in list_of_playlists:
     sp.user_playlist_create(user=myself["id"],
                             name= f"{input_date.converted_date} Top 100",
@@ -37,10 +37,11 @@ if f"{input_date.converted_date} Top 100" not in list_of_playlists:
     current_playlists = sp.current_user_playlists()
     new_playlist_id = current_playlists["items"][0]["id"]
     new_playlist_name = current_playlists["items"][0]["name"]
-
+# Else pull out relevant playlist id
 else:
     new_playlist_id = list_of_playlists.get(f"{input_date.converted_date} Top 100")
 
+# Search for songs
 for entry in range(len(billboard100.list_of_songs)):
     results = sp.search(q=f"{billboard100.list_of_songs[entry]} {billboard100.list_of_artists[entry]}",type="track")
     item_results = results["tracks"]["items"]
@@ -124,6 +125,7 @@ for entry in range(len(billboard100.list_of_songs)):
         playlist_content = items["track"]["id"]
         playlist_songs.append(playlist_content)
 
+    # Add song to playlist
     if song_id not in playlist_songs:
         sp.user_playlist_add_tracks(user=myself["id"],playlist_id=new_playlist_id,tracks=[song_id]) #Looking for track id,must be in a list
         print(f"{billboard100.list_of_songs[entry]} added")
